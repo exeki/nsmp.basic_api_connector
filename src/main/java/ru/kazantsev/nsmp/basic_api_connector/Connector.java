@@ -792,7 +792,7 @@ public class Connector {
             String params,
             Function<ClassicHttpResponse, T> responseMapper
     ) {
-        return execPost(httpEntity, methodName, params, responseMapper, null);
+        return execPost(httpEntity, methodName, params, null, responseMapper);
     }
 
     /**
@@ -809,8 +809,8 @@ public class Connector {
             HttpEntity httpEntity,
             String methodName,
             String params,
-            Function<ClassicHttpResponse, T> responseMapper,
-            Map<String, String> additionalUrlParams
+            Map<String, String> additionalUrlParams,
+            Function<ClassicHttpResponse, T> responseMapper
     ) {
         String PATH_SEGMENT = "exec-post";
         String path = BASE_REST_PATH + "/" + PATH_SEGMENT;
@@ -838,7 +838,7 @@ public class Connector {
             String params,
             Function<ClassicHttpResponse, T> responseMapper
     ) {
-        return execGet(methodName, params, responseMapper, null);
+        return execGet(methodName, params, null, responseMapper);
     }
 
     /**
@@ -854,8 +854,8 @@ public class Connector {
     public <T> T execGet(
             String methodName,
             String params,
-            Function<ClassicHttpResponse, T> responseMapper,
-            Map<String, String> additionalUrlParams
+            Map<String, String> additionalUrlParams,
+            Function<ClassicHttpResponse, T> responseMapper
     ) {
         String PATH_SEGMENT = "exec";
         String path = BASE_REST_PATH + "/" + PATH_SEGMENT;

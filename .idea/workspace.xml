@@ -11,6 +11,7 @@
   <component name="ChangeListManager">
     <list default="true" id="cd7d6f01-7d11-4fa7-8097-bb28cc6220d7" name="Changes" comment="Добавлены перегрузки для execPost и execGet">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ru/kazantsev/nsmp/basic_api_connector/Connector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/kazantsev/nsmp/basic_api_connector/Connector.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -430,14 +431,6 @@
       <workItem from="1776235895981" duration="3264000" />
       <workItem from="1777711443898" duration="27970000" />
     </task>
-    <task id="LOCAL-00024" summary="убран утилитарный класс">
-      <option name="closed" value="true" />
-      <created>1705339082747</created>
-      <option name="number" value="00024" />
-      <option name="presentableId" value="LOCAL-00024" />
-      <option name="project" value="LOCAL" />
-      <updated>1705339082747</updated>
-    </task>
     <task id="LOCAL-00025" summary="изменен доступ к методу формирования теста исключения">
       <option name="closed" value="true" />
       <created>1705341730813</created>
@@ -822,7 +815,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777742743441</updated>
     </task>
-    <option name="localTasksCounter" value="73" />
+    <task id="LOCAL-00073" summary="Добавлены перегрузки для execPost и execGet">
+      <option name="closed" value="true" />
+      <created>1777743612429</created>
+      <option name="number" value="00073" />
+      <option name="presentableId" value="LOCAL-00073" />
+      <option name="project" value="LOCAL" />
+      <updated>1777743612429</updated>
+    </task>
+    <option name="localTasksCounter" value="74" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
