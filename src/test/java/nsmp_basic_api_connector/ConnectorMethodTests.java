@@ -1,6 +1,7 @@
-package nsmp_basic_api_connector.method_tests;
+package nsmp_basic_api_connector;
 
-import nsmp_basic_api_connector.ApiTestUtils;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import ru.kazantsev.nsmp.basic_api_connector.Connector;
 import ru.kazantsev.nsmp.basic_api_connector.dto.nsmp.FileDto;
@@ -8,15 +9,17 @@ import ru.kazantsev.nsmp.basic_api_connector.dto.nsmp.ScriptChecksums;
 import ru.kazantsev.nsmp.basic_api_connector.dto.nsmp.ServiceTimeExclusionDto;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static nsmp_basic_api_connector.TestUtils.*;
+import static nsmp_basic_api_connector.TestConstants.*;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -24,71 +27,73 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ConnectorMethodTests {
 
-    private static final String METACLASS = "serviceCall$serviceCall";
-    private static final String OBJECT_UUID = "serviceCall$15803";
-    private static final String SERVICE_TIME_UUID = "servicetime$8901";
-    private static final String DATE_PATTERN = "yyyy-MM-dd";
-    private static final String FILE_UUID = "";
+    private static String testServiceTimeUuid;
+    private static String testServiceCallUuid;
 
     private static Connector api() {
-        return ApiTestUtils.getApi();
+        return TestUtils.getApi();
     }
 
-    private static File resourceFile(String name) {
-        var url = ConnectorMethodTests.class.getClassLoader().getResource(name);
-        assertNotNull(url, "Missing test resource: " + name);
-        try {
-            return new File(url.toURI());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    @BeforeAll
+    static void initServiceCall() {
+        Connector api = api();
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(TEST_OBJECT_DATE_TIME_PATTERN);
+        var title = "test_" + LocalDateTime.now().format(dtf);
+        Map<String, Object> payload = createServiceCallPayload();
+        payload.put("title", title);
+        HashMap<String, Object> result = api.createM2M(SERVICE_CALL_METACLASS, payload);
+        testServiceCallUuid = result.get("UUID").toString();
+        System.out.println("Создан тестовый serviceCall, title: " + title + ", uuid: " + testServiceCallUuid);
+
     }
 
-    private static String resourceText(String name) {
-        try {
-            return Files.readString(resourceFile(name).toPath(), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    @BeforeAll
+    static void initServiceTime() {
+        Connector api = api();
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(TEST_OBJECT_DATE_TIME_PATTERN);
+        var code = "test_" + LocalDateTime.now().format(dtf);
+        Map<String, Object> payload = Map.of("title", code, "code", code, "status", "active");
+        HashMap<String, Object> result = api.createM2M(SERVICE_TIME_METACLASS, payload);
+        testServiceTimeUuid = result.get("UUID").toString();
+        System.out.println("Создан тестовый serviceTime, code: " + code + ", uuid: " + testServiceTimeUuid);
     }
 
-    private static Map<String, Object> createServiceCallPayload() {
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("metaClass", METACLASS);
-        payload.put("description", "java-test");
-        payload.put("clientEmployee", "employee$10501");
-        payload.put("clientOU", "ou$10001");
-        payload.put("agreement", "agreement$9101");
-        payload.put("service", "slmService$9301");
-        return payload;
+    @AfterAll
+    static void deleteTestServiceCall() {
+        if (DELETE_TEST_OBJECTS_AFTER_TESTS) api().delete(testServiceCallUuid);
+    }
+
+    @AfterAll
+    static void deleteTestServiceTime() {
+        if (DELETE_TEST_OBJECTS_AFTER_TESTS) api().delete(testServiceTimeUuid);
     }
 
     @Test
     void create() {
-        assertDoesNotThrow(() -> api().create(METACLASS, createServiceCallPayload()));
+        assertDoesNotThrow(() -> api().create(SERVICE_CALL_METACLASS, createServiceCallPayload()));
     }
 
     @Test
     void addFile() {
-        assertDoesNotThrow(() -> api().addFile(OBJECT_UUID, resourceFile("test/testFile.txt")));
+        assertDoesNotThrow(() -> api().addFile(testServiceCallUuid, resourceFile("test/testFile.txt")));
     }
 
     @Test
     void addFileFromBytes() {
         byte[] bytes = resourceText("test/testFile.txt").getBytes(StandardCharsets.UTF_8);
-        assertDoesNotThrow(() -> api().addFile(OBJECT_UUID, bytes, "get.txt"));
+        assertDoesNotThrow(() -> api().addFile(testServiceCallUuid, bytes, "get.txt"));
     }
 
     @Test
     void addFileFromFileList() {
         List<File> files = List.of(resourceFile("test/testFile.txt"));
-        assertDoesNotThrow(() -> api().addFile(OBJECT_UUID, files));
+        assertDoesNotThrow(() -> api().addFile(testServiceCallUuid, files));
     }
 
     @Test
     void createExcl() throws Exception {
         ServiceTimeExclusionDto excl = api().createExcl(
-                SERVICE_TIME_UUID,
+                testServiceTimeUuid,
                 new SimpleDateFormat(DATE_PATTERN).parse("2022-01-15")
         );
         assertNotNull(excl);
@@ -99,7 +104,7 @@ class ConnectorMethodTests {
     void createM2M() {
         Connector api = api();
         Map<String, Object> payload = createServiceCallPayload();
-        HashMap result = api.createM2M(METACLASS, payload);
+        HashMap<String, Object> result = api.createM2M(SERVICE_CALL_METACLASS, payload);
         assertNotNull(result);
         assertNotNull(result.get("UUID"));
         api.delete(String.valueOf(result.get("UUID")));
@@ -113,10 +118,10 @@ class ConnectorMethodTests {
         objects.add(createServiceCallPayload());
         objects.add(createServiceCallPayload());
 
-        List<HashMap> result = api.createM2MMultiple(objects);
+        List<HashMap<String, Object>> result = api.createM2MMultiple(objects);
         assertNotNull(result);
         assertFalse(result.isEmpty());
-        for (HashMap item : result) {
+        for (HashMap<String, Object> item : result) {
             Object uuid = item.get("UUID");
             if (uuid != null) {
                 api.delete(String.valueOf(uuid));
@@ -127,7 +132,7 @@ class ConnectorMethodTests {
     @Test
     void delete() {
         Connector api = api();
-        HashMap created = api.createM2M(METACLASS, createServiceCallPayload());
+        HashMap<String, Object> created = api.createM2M(SERVICE_CALL_METACLASS, createServiceCallPayload());
         String uuid = String.valueOf(created.get("UUID"));
         assertDoesNotThrow(() -> api.delete(uuid));
     }
@@ -135,7 +140,7 @@ class ConnectorMethodTests {
     @Test
     void edit() {
         Connector api = api();
-        HashMap created = api.createM2M(METACLASS, createServiceCallPayload());
+        HashMap<String, Object> created = api.createM2M(SERVICE_CALL_METACLASS, createServiceCallPayload());
         String uuid = String.valueOf(created.get("UUID"));
         assertDoesNotThrow(() -> api.edit(uuid, Map.of("title", "TESETESTESTES")));
         api.delete(uuid);
@@ -145,7 +150,7 @@ class ConnectorMethodTests {
     void editExcl() throws Exception {
         Connector api = api();
         ServiceTimeExclusionDto excl = api.createExcl(
-                SERVICE_TIME_UUID,
+                testServiceTimeUuid,
                 new SimpleDateFormat(DATE_PATTERN).parse("2023-01-17")
         );
         ServiceTimeExclusionDto edited = api.editExcl(excl.uuid, 28_800_000L, 53_000_000L);
@@ -156,68 +161,57 @@ class ConnectorMethodTests {
     @Test
     void editM2M() {
         Connector api = api();
-        HashMap created = api.createM2M(METACLASS, createServiceCallPayload());
+        HashMap<String, Object> created = api.createM2M(SERVICE_CALL_METACLASS, createServiceCallPayload());
         String uuid = String.valueOf(created.get("UUID"));
-        HashMap edited = api.editM2M(uuid, Map.of("title", "drthwrthwrh"), List.of("title", "UUID"));
+        HashMap<String, Object> edited = api.editM2M(uuid, Map.of("title", "drthwrthwrh"), List.of("title", "UUID"));
         assertNotNull(edited);
         api.delete(uuid);
     }
 
     @Test
-    void execFileFromFile() {
-        assertDoesNotThrow(() -> api().execFile(resourceFile("test/testScript.groovy")));
-    }
-
-    @Test
-    void execFileFromBytes() {
-        byte[] bytes = resourceText("test/testScript.groovy").getBytes(StandardCharsets.UTF_8);
-        assertDoesNotThrow(() -> api().execFile(bytes));
-    }
-
-    @Test
-    void execFileFromString() {
-        assertDoesNotThrow(() -> api().execFile(resourceText("test/testScript.groovy")));
+    void execFromString() {
+        assertDoesNotThrow(() -> api().exec(resourceText("test/testScript.groovy")));
     }
 
     @Test
     void find() {
         Connector api = api();
-        HashMap created = api.createM2M(METACLASS, createServiceCallPayload());
+        HashMap<String, Object> created = api.createM2M(SERVICE_CALL_METACLASS, createServiceCallPayload());
         String uuid = String.valueOf(created.get("UUID"));
-        List<HashMap> result = api.find(METACLASS, Map.of("UUID", uuid), null, 0L, 1L);
+        List<HashMap<String, Object>> result = api.find(SERVICE_CALL_METACLASS, Map.of("UUID", uuid), null, 0L, 1L);
         assertNotNull(result);
     }
 
     @Test
     void findWithoutPaging() {
-        List<HashMap> result = api().find(METACLASS, Map.of());
+        List<HashMap<String, Object>> result = api().find(SERVICE_CALL_METACLASS, Map.of());
         assertNotNull(result);
     }
 
     @Test
     void findWithReturnAttrs() {
         Connector api = api();
-        HashMap created = api.createM2M(METACLASS, createServiceCallPayload());
+        HashMap<String, Object> created = api.createM2M(SERVICE_CALL_METACLASS, createServiceCallPayload());
         String uuid = String.valueOf(created.get("UUID"));
-        List<HashMap> result = api.find(METACLASS, Map.of("UUID", uuid), List.of("title", "UUID"));
+        List<HashMap<String, Object>> result = api.find(SERVICE_CALL_METACLASS, Map.of("UUID", uuid), List.of("title", "UUID"));
         assertNotNull(result);
     }
 
     @Test
     void get() {
         Connector api = api();
-        HashMap created = api.createM2M(METACLASS, createServiceCallPayload());
+        HashMap<String, Object> created = api.createM2M(SERVICE_CALL_METACLASS, createServiceCallPayload());
         String uuid = String.valueOf(created.get("UUID"));
-        HashMap result = api.get(uuid, List.of("title", "UUID"));
+        HashMap<String, Object> result = api.get(uuid, List.of("title", "UUID"));
         assertNotNull(result);
     }
 
     @Test
     void getWithoutReturnAttrs() {
         Connector api = api();
-        HashMap created = api.createM2M(METACLASS, createServiceCallPayload());
+        HashMap<String, Object> created = api.createM2M(SERVICE_CALL_METACLASS, createServiceCallPayload());
         String uuid = String.valueOf(created.get("UUID"));
-        HashMap result = api.get(uuid);
+        HashMap<String, Object> result = api.get(uuid);
         assertNotNull(result);
     }
 
@@ -230,7 +224,12 @@ class ConnectorMethodTests {
 
     @Test
     void getFile() {
-        FileDto file = api().getFile(FILE_UUID);
+        var api = api();
+        api.addFile(testServiceCallUuid, resourceFile("test/testFile.txt"));
+        var files = api.find("file", Map.of("source", testServiceCallUuid));
+        assertFalse(files.isEmpty());
+        String fileUuid = files.getLast().get("UUID").toString();
+        FileDto file = api().getFile(fileUuid);
         assertNotNull(file);
         assertNotNull(file.bytes);
         assertTrue(file.bytes.length > 0);
@@ -265,7 +264,7 @@ class ConnectorMethodTests {
 
     @Test
     void metainfoWithTimeout() {
-        String value = api().metainfo(15_000);
+        String value = api().metainfo(15_000L);
         assertNotNull(value);
         assertFalse(value.isBlank());
     }
