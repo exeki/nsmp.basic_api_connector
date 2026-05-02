@@ -11,17 +11,7 @@
   <component name="ChangeListManager">
     <list default="true" id="cd7d6f01-7d11-4fa7-8097-bb28cc6220d7" name="Changes" comment="Зафиксирована политика работы c readTimeout. Метод execFile заменен методом exec без перегрузок.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ru/kazantsev/nsmp/basic_api_connector/Connector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/kazantsev/nsmp/basic_api_connector/Connector.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ru/kazantsev/nsmp/basic_api_connector/dto/nsmp/FileDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/kazantsev/nsmp/basic_api_connector/dto/nsmp/FileDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ru/kazantsev/nsmp/basic_api_connector/exception/BadResponseException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/kazantsev/nsmp/basic_api_connector/exception/BadResponseException.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/nsmp_basic_api_connector/ConnectorMethodTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/nsmp_basic_api_connector/ConnectorMethodTests.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/resources/simplelogger.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/resources/simplelogger.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/resources/test/modules/importTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/resources/test/modules/importTest.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/resources/test/scripts/test1.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/resources/test/scripts/test1.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/resources/test/src/main/groovy/ru/naumen/modules/importTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/resources/test/src/main/groovy/ru/naumen/modules/importTest.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/resources/test/src/main/groovy/ru/naumen/scripts/test1.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/resources/test/src/main/groovy/ru/naumen/scripts/test1.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/resources/test/testScript.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/resources/test/testScript.groovy" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -435,15 +425,7 @@
       <workItem from="1776094291649" duration="12766000" />
       <workItem from="1776161558708" duration="611000" />
       <workItem from="1776235895981" duration="3264000" />
-      <workItem from="1777711443898" duration="17429000" />
-    </task>
-    <task id="LOCAL-00018" summary="изменена сборка">
-      <option name="closed" value="true" />
-      <created>1699093032920</created>
-      <option name="number" value="00018" />
-      <option name="presentableId" value="LOCAL-00018" />
-      <option name="project" value="LOCAL" />
-      <updated>1699093032920</updated>
+      <workItem from="1777711443898" duration="17556000" />
     </task>
     <task id="LOCAL-00019" summary="изменена сборка">
       <option name="closed" value="true" />
@@ -829,7 +811,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777726044384</updated>
     </task>
-    <option name="localTasksCounter" value="67" />
+    <task id="LOCAL-00067" summary="Зафиксирована политика работы c readTimeout. Метод execFile заменен методом exec без перегрузок.">
+      <option name="closed" value="true" />
+      <created>1777729415255</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1777729415255</updated>
+    </task>
+    <option name="localTasksCounter" value="68" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

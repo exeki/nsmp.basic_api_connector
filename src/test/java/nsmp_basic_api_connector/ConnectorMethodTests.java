@@ -2,7 +2,9 @@ package nsmp_basic_api_connector;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.kazantsev.nsmp.basic_api_connector.Connector;
@@ -36,6 +38,11 @@ class ConnectorMethodTests {
 
     private static Connector api() {
         return TestUtils.getApi();
+    }
+
+    @BeforeEach
+    void logTestStart(TestInfo testInfo) {
+        logger.info("Running test: {}", testInfo.getDisplayName());
     }
 
     @BeforeAll
