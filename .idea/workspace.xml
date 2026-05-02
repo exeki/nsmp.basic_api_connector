@@ -9,7 +9,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cd7d6f01-7d11-4fa7-8097-bb28cc6220d7" name="Changes" comment="Добавлены перегрузки для execPost и execGet">
+    <list default="true" id="cd7d6f01-7d11-4fa7-8097-bb28cc6220d7" name="Changes" comment="Изменен порядок аргументов для методов execPost и execGet, теперь лямбда всегда в конце.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ru/kazantsev/nsmp/basic_api_connector/Connector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/kazantsev/nsmp/basic_api_connector/Connector.java" afterDir="false" />
@@ -431,14 +431,6 @@
       <workItem from="1776235895981" duration="3264000" />
       <workItem from="1777711443898" duration="27970000" />
     </task>
-    <task id="LOCAL-00025" summary="изменен доступ к методу формирования теста исключения">
-      <option name="closed" value="true" />
-      <created>1705341730813</created>
-      <option name="number" value="00025" />
-      <option name="presentableId" value="LOCAL-00025" />
-      <option name="project" value="LOCAL" />
-      <updated>1705341730813</updated>
-    </task>
     <task id="LOCAL-00026" summary="изменен доступ к методу формирования теста исключения">
       <option name="closed" value="true" />
       <created>1705342446778</created>
@@ -823,7 +815,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777743612429</updated>
     </task>
-    <option name="localTasksCounter" value="74" />
+    <task id="LOCAL-00074" summary="Изменен порядок аргументов для методов execPost и execGet, теперь лямбда всегда в конце.">
+      <option name="closed" value="true" />
+      <created>1777744572265</created>
+      <option name="number" value="00074" />
+      <option name="presentableId" value="LOCAL-00074" />
+      <option name="project" value="LOCAL" />
+      <updated>1777744572265</updated>
+    </task>
+    <option name="localTasksCounter" value="75" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -841,7 +841,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="упростил и сократил код&#10;добавил метод получения ключа по логину и паролю" />
     <MESSAGE value="упростил и сократил код&#10;добавил метод получения ключа по логину и паролю&#10;кажись работает, но это не точно" />
     <MESSAGE value="поправил доку" />
     <MESSAGE value="ConnectorParams.getAccessKey стал public" />
@@ -866,7 +865,8 @@
     <MESSAGE value="Тест сборки." />
     <MESSAGE value="Добавлены исключения обертки RequestProcessException и ResponseReadException для подавления и/или перехвата реальных исключений. Изменены сигнатуры execGet и execPost, теперь они принимают responseMapper что бы получить ответ и закрыть ответ. Пользователю сырой ответ более не передается." />
     <MESSAGE value="Добавлены перегрузки для execPost и execGet" />
-    <option name="LAST_COMMIT_MESSAGE" value="Добавлены перегрузки для execPost и execGet" />
+    <MESSAGE value="Изменен порядок аргументов для методов execPost и execGet, теперь лямбда всегда в конце." />
+    <option name="LAST_COMMIT_MESSAGE" value="Изменен порядок аргументов для методов execPost и execGet, теперь лямбда всегда в конце." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

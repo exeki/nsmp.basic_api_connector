@@ -208,7 +208,7 @@ public class Connector {
             HttpClientResponseHandler<T> handler = response -> handleResponse(method, response, responseMapper);
             return client.execute(request, handler);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RequestProcessException(e);
         }
 
     }
