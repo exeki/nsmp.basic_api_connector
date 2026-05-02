@@ -10,7 +10,7 @@ import java.io.IOException;
  */
 public class BadResponseException extends RuntimeException {
 
-    protected static int MAX_BODY_SIZE_IN_MESSAGE = 1000;
+    protected static final int MAX_BODY_SIZE_IN_MESSAGE = 1000;
 
     protected ResponseSnapshot responseSnapshot;
     protected String host;

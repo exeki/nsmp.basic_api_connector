@@ -5,9 +5,9 @@ package ru.kazantsev.nsmp.basic_api_connector.dto.nsmp;
  */
 @SuppressWarnings("unused")
 public class FileDto   {
-    public byte[] bytes;
-    public String title;
-    public String contentType;
+    public final byte[] bytes;
+    public final String title;
+    public final String contentType;
 
     public FileDto(byte[] bytes, String title, String contentType) {
         this.bytes = bytes;

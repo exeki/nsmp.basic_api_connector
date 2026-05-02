@@ -3,6 +3,8 @@ package nsmp_basic_api_connector;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.kazantsev.nsmp.basic_api_connector.Connector;
 import ru.kazantsev.nsmp.basic_api_connector.dto.nsmp.FileDto;
 import ru.kazantsev.nsmp.basic_api_connector.dto.nsmp.ScriptChecksums;
@@ -30,12 +32,15 @@ class ConnectorMethodTests {
     private static String testServiceTimeUuid;
     private static String testServiceCallUuid;
 
+    public static Logger logger = LoggerFactory.getLogger(ConnectorMethodTests.class);
+
     private static Connector api() {
         return TestUtils.getApi();
     }
 
     @BeforeAll
     static void initServiceCall() {
+        logger.info("Инициализация ServiceCall");
         Connector api = api();
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern(TEST_OBJECT_DATE_TIME_PATTERN);
         var title = "test_" + LocalDateTime.now().format(dtf);
@@ -43,29 +48,36 @@ class ConnectorMethodTests {
         payload.put("title", title);
         HashMap<String, Object> result = api.createM2M(SERVICE_CALL_METACLASS, payload);
         testServiceCallUuid = result.get("UUID").toString();
-        System.out.println("Создан тестовый serviceCall, title: " + title + ", uuid: " + testServiceCallUuid);
+        logger.info("Создан тестовый serviceCall, title: " + title + ", uuid: " + testServiceCallUuid);
 
     }
 
     @BeforeAll
     static void initServiceTime() {
+        logger.info("Инициализация ServiceTime");
         Connector api = api();
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern(TEST_OBJECT_DATE_TIME_PATTERN);
         var code = "test_" + LocalDateTime.now().format(dtf);
         Map<String, Object> payload = Map.of("title", code, "code", code, "status", "active");
         HashMap<String, Object> result = api.createM2M(SERVICE_TIME_METACLASS, payload);
         testServiceTimeUuid = result.get("UUID").toString();
-        System.out.println("Создан тестовый serviceTime, code: " + code + ", uuid: " + testServiceTimeUuid);
+        logger.info("Создан тестовый serviceTime, code: " + code + ", uuid: " + testServiceTimeUuid);
     }
 
     @AfterAll
     static void deleteTestServiceCall() {
-        if (DELETE_TEST_OBJECTS_AFTER_TESTS) api().delete(testServiceCallUuid);
+        if (DELETE_TEST_OBJECTS_AFTER_TESTS) {
+            api().delete(testServiceCallUuid);
+            logger.info("Тестовый ServiceCall удален");
+        }
     }
 
     @AfterAll
     static void deleteTestServiceTime() {
-        if (DELETE_TEST_OBJECTS_AFTER_TESTS) api().delete(testServiceTimeUuid);
+        if (DELETE_TEST_OBJECTS_AFTER_TESTS) {
+            api().delete(testServiceTimeUuid);
+            logger.info("Тестовый ServiceTime удален");
+        }
     }
 
     @Test
@@ -281,22 +293,6 @@ class ConnectorMethodTests {
         ScriptChecksums checksums = api.pushScripts(api.getScripts().getBytes(StandardCharsets.UTF_8));
         assertNotNull(checksums);
     }
-
-    /*
-    @Test
-    void uploadMetainfoWithTimeout() {
-        Connector api = api();
-        String content = api.metainfo(15_000);
-        assertDoesNotThrow(() -> api.uploadMetainfo(content, 15_000));
-    }
-
-    @Test
-    void uploadMetainfoDefaultTimeout() {
-        Connector api = api();
-        String content = api.metainfo(15_000);
-        assertDoesNotThrow(() -> api.uploadMetainfo(content));
-    }
-     */
 
     @Test
     void version() {

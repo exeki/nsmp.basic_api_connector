@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -49,7 +48,6 @@ import java.util.*;
 /**
  * Коннектор, имплементирующий методы базового API NSMP
  */
-@SuppressWarnings("unused")
 public class Connector {
 
     protected static final String ACCESS_KEY_PARAM_NAME = "accessKey";
@@ -57,22 +55,21 @@ public class Connector {
     protected static final String BASE_SMPSYNC_PATH = "/sd/services/smpsync";
 
     protected static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
-    protected static final String CHARSET = "UTF-8";
-    protected static Logger logger = LoggerFactory.getLogger(Connector.class);
+    protected static final Logger logger = LoggerFactory.getLogger(Connector.class);
 
-    protected String scheme;
-    protected String host;
+    protected final String scheme;
+    protected final String host;
     protected String accessKey;
-    protected boolean ignoringSSL = false;
+    protected boolean ignoringSSL;
 
     public String getHost() {
         return host;
     }
 
     /**
-     * Клиент, с заранее вложенными парсером, авторизацией, обработчиком ошибок
+     * Клиент
      */
-    protected CloseableHttpClient client;
+    protected final CloseableHttpClient client;
 
     /**
      * Используемый при общении маппер
@@ -113,30 +110,23 @@ public class Connector {
         }
     }
 
-    protected PoolingHttpClientConnectionManager getConnectionManager(ConnectionConfig connectionConfig) {
-        PoolingHttpClientConnectionManagerBuilder builder = PoolingHttpClientConnectionManagerBuilder.create()
-                .setDefaultConnectionConfig(connectionConfig);
-        if (ignoringSSL) {
-            try {
-                SSLContext sslContext = SSLContexts.custom()
-                        .loadTrustMaterial(null, TrustAllStrategy.INSTANCE)
-                        .build();
-                builder.setTlsSocketStrategy(ClientTlsStrategyBuilder.create()
-                        .setSslContext(sslContext)
-                        .setHostnameVerifier(NoopHostnameVerifier.INSTANCE)
-                        .buildClassic());
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return builder.build();
-    }
-
+    /**
+     * Установить object mapper для чтения json
+     *
+     * @param mapper object mapper
+     */
+    @SuppressWarnings("unused")
     public void setObjectMapper(ObjectMapper mapper) {
         this.objectMapper = mapper;
     }
 
-    public URI buildUri(URIBuilder builder) {
+    /**
+     * Собрать URI с подавлением потенциальных исключений
+     *
+     * @param builder билдер
+     * @return собранных URI
+     */
+    protected URI buildUri(URIBuilder builder) {
         try {
             return builder.build();
         } catch (URISyntaxException e) {
@@ -149,11 +139,17 @@ public class Connector {
      *
      * @return базовый конструктор URI
      */
-    public URIBuilder getBasicUriBuilder() {
+    protected URIBuilder getBasicUriBuilder() {
         return new URIBuilder().setScheme(scheme).setHost(host).addParameter(ACCESS_KEY_PARAM_NAME, accessKey);
     }
 
-    public StringEntity newStringEntity(Object value) {
+    /**
+     * Собирает string entity подавляя потенциальное исключение
+     *
+     * @param value что будет в string entity
+     * @return string entity
+     */
+    protected StringEntity newStringEntity(Object value) {
         try {
             return new StringEntity(objectMapper.writeValueAsString(value), ContentType.APPLICATION_JSON);
         } catch (JsonProcessingException e) {
@@ -161,7 +157,16 @@ public class Connector {
         }
     }
 
-    public <T> T executePost(
+    /**
+     * Выполнить POST
+     *
+     * @param request        HttpPost
+     * @param method         название метода для лога
+     * @param responseMapper маппер для преобразования ответа
+     * @param <T>            тип возвращаемых данных
+     * @return ответ, преобразованных responseMapper
+     */
+    protected <T> T executePost(
             HttpPost request,
             String method,
             java.util.function.Function<ClassicHttpResponse, T> responseMapper
@@ -169,12 +174,28 @@ public class Connector {
         return executePost(request, method, responseMapper, null);
     }
 
-    public <T> T executePost(
+    /**
+     * Выполнить POST
+     *
+     * @param request        HttpPost
+     * @param method         название метода для лога
+     * @param responseMapper маппер для преобразования ответа
+     * @param readTimeout    read timeout
+     * @param <T>            тип возвращаемых данных
+     * @return ответ, преобразованных responseMapper
+     */
+    protected <T> T executePost(
             HttpPost request,
             String method,
             java.util.function.Function<ClassicHttpResponse, T> responseMapper,
             Long readTimeout
     ) {
+        if (readTimeout != null) {
+            RequestConfig requestConfig = RequestConfig.custom()
+                    .setResponseTimeout(Timeout.ofMilliseconds(readTimeout))
+                    .build();
+            request.setConfig(requestConfig);
+        }
         try {
             logger.debug("POST request \"{}\" uri: \"{}\"", method, request);
             HttpClientResponseHandler<T> handler = response -> handleResponse(method, response, responseMapper);
@@ -184,16 +205,35 @@ public class Connector {
         }
     }
 
+    /**
+     * Выполнить GET
+     *
+     * @param request        HttpGet
+     * @param method         название метода для лога
+     * @param responseMapper маппер для преобразования ответа
+     * @param <T>            тип возвращаемых данных
+     * @return ответ, преобразованных responseMapper
+     */
     public <T> T executeGet(
-            HttpGet httpGet,
+            HttpGet request,
             String method,
             java.util.function.Function<ClassicHttpResponse, T> responseMapper
     ) {
-        return executeGet(httpGet, method, responseMapper, null);
+        return executeGet(request, method, responseMapper, null);
     }
 
+    /**
+     * Выполнить GET
+     *
+     * @param request        HttpGet
+     * @param method         название метода для лога
+     * @param responseMapper маппер для преобразования ответа
+     * @param readTimeout    read timeout
+     * @param <T>            тип возвращаемых данных
+     * @return ответ, преобразованных responseMapper
+     */
     public <T> T executeGet(
-            HttpGet httpGet,
+            HttpGet request,
             String method,
             java.util.function.Function<ClassicHttpResponse, T> responseMapper,
             Long readTimeout
@@ -202,18 +242,27 @@ public class Connector {
             RequestConfig requestConfig = RequestConfig.custom()
                     .setResponseTimeout(Timeout.ofMilliseconds(readTimeout))
                     .build();
-            httpGet.setConfig(requestConfig);
+            request.setConfig(requestConfig);
         }
         try {
-            logger.debug("GET request \"{}\" uri: \"{}\"", method, httpGet);
+            logger.debug("GET request \"{}\" uri: \"{}\"", method, request);
             HttpClientResponseHandler<T> handler = response -> handleResponse(method, response, responseMapper);
-            return client.execute(httpGet, handler);
+            return client.execute(request, handler);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public <T> T handleResponse(
+    /**
+     * Проверить ответ на код и преобразовать текст ответа
+     *
+     * @param method         название метода для лога
+     * @param response       ответ для проверки и преобразования
+     * @param responseMapper маппер для преобразования ответа
+     * @param <T>            тип возвращаемых данных
+     * @return ответ, преобразованных responseMapper
+     */
+    protected <T> T handleResponse(
             String method,
             ClassicHttpResponse response,
             java.util.function.Function<ClassicHttpResponse, T> responseMapper
@@ -224,7 +273,13 @@ public class Connector {
         return responseMapper.apply(response);
     }
 
-    public String readBodyAsString(ClassicHttpResponse response) {
+    /**
+     * Прочитать ответ как строку
+     *
+     * @param response ответ
+     * @return ответ как строка
+     */
+    protected String readBodyAsString(ClassicHttpResponse response) {
         try {
             return EntityUtils.toString(response.getEntity());
         } catch (IOException | ParseException e) {
@@ -232,7 +287,13 @@ public class Connector {
         }
     }
 
-    public byte[] readBodyAsBytes(ClassicHttpResponse response) {
+    /**
+     * Прочитать ответ как массив байтов
+     *
+     * @param response ответ
+     * @return ответ как массив байтов
+     */
+    protected byte[] readBodyAsBytes(ClassicHttpResponse response) {
         try {
             return EntityUtils.toByteArray(response.getEntity());
         } catch (IOException e) {
@@ -240,7 +301,14 @@ public class Connector {
         }
     }
 
-    public <T> T readBodyAsJson(ClassicHttpResponse response) {
+    /**
+     * Прочитать ответ как JSON
+     *
+     * @param response ответ
+     * @param <T>      требуемый тип
+     * @return ответ, десерилизованный в требуемый тип
+     */
+    protected <T> T readBodyAsJson(ClassicHttpResponse response) {
         try {
             return objectMapper.readValue(readBodyAsString(response), new TypeReference<>() {
             });
@@ -249,7 +317,15 @@ public class Connector {
         }
     }
 
-    public <T> T readBodyAsJson(ClassicHttpResponse response, Class<T> clazz) {
+    /**
+     * Прочитать ответ как JSON
+     *
+     * @param response ответ
+     * @param clazz    требуемый тип, задается явно
+     * @param <T>      требуемый тип
+     * @return ответ, десерилизованный в требуемый тип
+     */
+    protected <T> T readBodyAsJson(ClassicHttpResponse response, Class<T> clazz) {
         try {
             return objectMapper.readValue(readBodyAsString(response), clazz);
         } catch (IOException e) {
@@ -257,7 +333,15 @@ public class Connector {
         }
     }
 
-    public <T> T readBodyAsJson(ClassicHttpResponse response, TypeReference<T> typeReference) {
+    /**
+     * Прочитать ответ как JSON
+     *
+     * @param response      ответ
+     * @param typeReference требуемый тип, задается как TypeReference
+     * @param <T>           требуемый тип
+     * @return ответ, десерилизованный в требуемый тип
+     */
+    protected <T> T readBodyAsJson(ClassicHttpResponse response, TypeReference<T> typeReference) {
         try {
             return objectMapper.readValue(readBodyAsString(response), typeReference);
         } catch (IOException e) {
@@ -606,20 +690,16 @@ public class Connector {
     public FileDto getFile(String fileUuid) {
         String PATH_SEGMENT = "get-file";
         var builder = getBasicUriBuilder().setPath(BASE_REST_PATH + "/" + PATH_SEGMENT + "/" + fileUuid);
-        return executeGet(new HttpGet(buildUri(builder)), PATH_SEGMENT, (ClassicHttpResponse response) -> {
-            try {
-                return new FileDto(
-                        EntityUtils.toByteArray(response.getEntity()),
+        return executeGet(new HttpGet(buildUri(builder)), PATH_SEGMENT, (ClassicHttpResponse response) ->
+                new FileDto(
+                        readBodyAsBytes(response),
                         Optional.ofNullable(response.getFirstHeader("Content-Disposition"))
                                 .map(NameValuePair::getValue)
                                 .map(cd -> cd.substring(cd.indexOf('=') + 2, cd.length() - 1))
                                 .orElse(null),
                         Optional.ofNullable(response.getFirstHeader("Content-Type")).map(NameValuePair::getValue).orElse(null)
-                );
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+                )
+        );
     }
 
     /**
@@ -799,39 +879,22 @@ public class Connector {
         return metainfo(null);
     }
 
-    /*
+    /**
      * Загрузить метаинформацию
      *
-     * @param xmlFileContent  строка xml файла конфигурации
-     * @param timeoutInMillis таймаут ответа
-
-    public void uploadMetainfo(String xmlFileContent, Integer timeoutInMillis)  {
+     * @param xmlFileContent строка xml файла конфигурации
+     * @param readTimeout    read timeout
+     */
+    public void uploadMetainfo(String xmlFileContent, Long readTimeout) {
         String PATH_SEGMENT = "upload-metainfo";
         String path = BASE_SMPSYNC_PATH + "/" + PATH_SEGMENT;
         HttpPost httpPost = new HttpPost(buildUri(getBasicUriBuilder().setPath(path)));
         HttpEntity entity = MultipartEntityBuilder.create()
                 .addBinaryBody("metainfo", xmlFileContent.getBytes(), ContentType.APPLICATION_XML, "metainfo.xml")
                 .build();
-        RequestConfig requestConfig = RequestConfig.custom()
-                .setResponseTimeout(Timeout.ofMilliseconds(timeoutInMillis))
-                .setConnectTimeout(Timeout.ofMilliseconds(timeoutInMillis))
-                .setConnectionRequestTimeout(Timeout.ofMilliseconds(timeoutInMillis))
-                .build();
-        httpPost.setConfig(requestConfig);
         httpPost.setEntity(entity);
-        executePost(httpPost, PATH_SEGMENT, response -> null);
+        executePost(httpPost, PATH_SEGMENT, response -> null, readTimeout);
     }
-
-    *
-     * Загрузить метаинформацию со стандартным таймаутом в 15 минут
-     *
-     * @param xmlFileContent строка xml файла конфигурации
-     *
-    public void uploadMetainfo(String xmlFileContent)  {
-        int TIMEOUT = 15 * 60 * 1000;
-        uploadMetainfo(xmlFileContent, TIMEOUT);
-    }
-   */
 
     /**
      * Получение ключа для по логину и паролю.

@@ -1,3 +1,8 @@
+//file:noinspection Annotator
+//file:noinspection Annotator
+//file:noinspection GrUnresolvedAccess
+//file:noinspection GrUnresolvedAccess
+//file:noinspection GrUnresolvedAccess
 package test
 
 import groovy.json.JsonBuilder

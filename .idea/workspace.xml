@@ -9,15 +9,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cd7d6f01-7d11-4fa7-8097-bb28cc6220d7" name="Changes" comment="значительно видоизменен BadResponseException">
-      <change afterPath="$PROJECT_DIR$/src/test/java/nsmp_basic_api_connector/TestConstants.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/nsmp_basic_api_connector/TestUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.github/workflows/gradle.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/gradle.yml" afterDir="false" />
+    <list default="true" id="cd7d6f01-7d11-4fa7-8097-bb28cc6220d7" name="Changes" comment="Зафиксирована политика работы c readTimeout. Метод execFile заменен методом exec без перегрузок.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ru/kazantsev/nsmp/basic_api_connector/Connector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/kazantsev/nsmp/basic_api_connector/Connector.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/nsmp_basic_api_connector/ApiTestUtils.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/nsmp_basic_api_connector/method_tests/ConnectorMethodTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/nsmp_basic_api_connector/ConnectorMethodTests.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ru/kazantsev/nsmp/basic_api_connector/dto/nsmp/FileDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/kazantsev/nsmp/basic_api_connector/dto/nsmp/FileDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ru/kazantsev/nsmp/basic_api_connector/exception/BadResponseException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/kazantsev/nsmp/basic_api_connector/exception/BadResponseException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/nsmp_basic_api_connector/ConnectorMethodTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/nsmp_basic_api_connector/ConnectorMethodTests.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/resources/simplelogger.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/resources/simplelogger.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/resources/test/modules/importTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/resources/test/modules/importTest.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/resources/test/scripts/test1.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/resources/test/scripts/test1.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/resources/test/src/main/groovy/ru/naumen/modules/importTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/resources/test/src/main/groovy/ru/naumen/modules/importTest.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/resources/test/src/main/groovy/ru/naumen/scripts/test1.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/resources/test/src/main/groovy/ru/naumen/scripts/test1.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/resources/test/testScript.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/resources/test/testScript.groovy" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,6 +53,12 @@
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="basic_api_connector" type="f1a62948:ProjectNode" />
                 <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="basic_api_connector" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="build" type="c8890929:TasksNode$1" />
               </path>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
@@ -184,6 +194,7 @@
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
+    "run.code.analysis.last.selected.profile": "pProject Default",
     "settings.editor.selected.configurable": "reference.settingsdialog.project.gradle",
     "vue.rearranger.settings.migration": "true"
   }
@@ -205,7 +216,7 @@
       <recent name="ru.ekazantsev.nsd_basic_api_connector" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.ConnectorMethodTests (1)">
+  <component name="RunManager" selected="Gradle.nsd.basic_api_connector [test]">
     <configuration name="ConnectorMethodTests (1)" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -233,7 +244,7 @@
       <GradleCoverageDisabled>false</GradleCoverageDisabled>
       <method v="2" />
     </configuration>
-    <configuration name="ConnectorMethodTests.addFileFromBytes" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="ConnectorMethodTests.edit" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -246,7 +257,7 @@
           <list>
             <option value=":test" />
             <option value="--tests" />
-            <option value="&quot;nsmp_basic_api_connector.method_tests.ConnectorMethodTests.addFileFromBytes&quot;" />
+            <option value="&quot;nsmp_basic_api_connector.ConnectorMethodTests.edit&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -260,7 +271,7 @@
       <GradleCoverageDisabled>false</GradleCoverageDisabled>
       <method v="2" />
     </configuration>
-    <configuration name="ConnectorMethodTests.createExcl (1)" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="ConnectorMethodTests.editM2M" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -273,7 +284,7 @@
           <list>
             <option value=":test" />
             <option value="--tests" />
-            <option value="&quot;nsmp_basic_api_connector.ConnectorMethodTests.createExcl&quot;" />
+            <option value="&quot;nsmp_basic_api_connector.ConnectorMethodTests.editM2M&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -287,67 +298,63 @@
       <GradleCoverageDisabled>false</GradleCoverageDisabled>
       <method v="2" />
     </configuration>
-    <configuration name="ConnectorMethodTests.createExcl" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="nsd.basic_api_connector [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="" />
+        <option name="scriptParameters" />
         <option name="taskDescriptions">
           <list />
         </option>
         <option name="taskNames">
           <list>
-            <option value=":test" />
-            <option value="--tests" />
-            <option value="&quot;nsmp_basic_api_connector.method_tests.ConnectorMethodTests.createExcl&quot;" />
+            <option value="build" />
           </list>
         </option>
         <option name="vmOptions" />
       </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
       <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
       <ExternalSystemDebugDisabled>false</ExternalSystemDebugDisabled>
       <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>true</RunAsTest>
+      <RunAsTest>false</RunAsTest>
       <GradleProfilingDisabled>false</GradleProfilingDisabled>
       <GradleCoverageDisabled>false</GradleCoverageDisabled>
       <method v="2" />
     </configuration>
-    <configuration name="ConnectorMethodTests.editExcl" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="nsd.basic_api_connector [test]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="" />
+        <option name="scriptParameters" />
         <option name="taskDescriptions">
           <list />
         </option>
         <option name="taskNames">
           <list>
-            <option value=":test" />
-            <option value="--tests" />
-            <option value="&quot;nsmp_basic_api_connector.ConnectorMethodTests.editExcl&quot;" />
+            <option value="test" />
           </list>
         </option>
         <option name="vmOptions" />
       </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
       <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
       <ExternalSystemDebugDisabled>false</ExternalSystemDebugDisabled>
       <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>true</RunAsTest>
+      <RunAsTest>false</RunAsTest>
       <GradleProfilingDisabled>false</GradleProfilingDisabled>
       <GradleCoverageDisabled>false</GradleCoverageDisabled>
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.nsd.basic_api_connector [test]" />
+        <item itemvalue="Gradle.ConnectorMethodTests.editM2M" />
+        <item itemvalue="Gradle.ConnectorMethodTests.edit" />
+        <item itemvalue="Gradle.nsd.basic_api_connector [build]" />
         <item itemvalue="Gradle.ConnectorMethodTests (1)" />
-        <item itemvalue="Gradle.ConnectorMethodTests.createExcl (1)" />
-        <item itemvalue="Gradle.ConnectorMethodTests.editExcl" />
-        <item itemvalue="Gradle.ConnectorMethodTests.addFileFromBytes" />
-        <item itemvalue="Gradle.ConnectorMethodTests.createExcl" />
       </list>
     </recent_temporary>
   </component>
@@ -428,15 +435,7 @@
       <workItem from="1776094291649" duration="12766000" />
       <workItem from="1776161558708" duration="611000" />
       <workItem from="1776235895981" duration="3264000" />
-      <workItem from="1777711443898" duration="14062000" />
-    </task>
-    <task id="LOCAL-00017" summary="изменены зависимости">
-      <option name="closed" value="true" />
-      <created>1698175297351</created>
-      <option name="number" value="00017" />
-      <option name="presentableId" value="LOCAL-00017" />
-      <option name="project" value="LOCAL" />
-      <updated>1698175297351</updated>
+      <workItem from="1777711443898" duration="17429000" />
     </task>
     <task id="LOCAL-00018" summary="изменена сборка">
       <option name="closed" value="true" />
@@ -822,7 +821,15 @@
       <option name="project" value="LOCAL" />
       <updated>1776765322212</updated>
     </task>
-    <option name="localTasksCounter" value="66" />
+    <task id="LOCAL-00066" summary="Зафиксирована политика работы c readTimeout. Метод execFile заменен методом exec без перегрузок.">
+      <option name="closed" value="true" />
+      <created>1777726044383</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1777726044384</updated>
+    </task>
+    <option name="localTasksCounter" value="67" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -840,7 +847,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="изменана сборка" />
     <MESSAGE value="удалена рантайм зависимость груви, оставлена только в тесте" />
     <MESSAGE value="убран slf4j логгер из api" />
     <MESSAGE value="тесты" />
@@ -865,7 +871,8 @@
     <MESSAGE value="багофикс" />
     <MESSAGE value="расширен методы ConfigService" />
     <MESSAGE value="значительно видоизменен BadResponseException" />
-    <option name="LAST_COMMIT_MESSAGE" value="значительно видоизменен BadResponseException" />
+    <MESSAGE value="Зафиксирована политика работы c readTimeout. Метод execFile заменен методом exec без перегрузок." />
+    <option name="LAST_COMMIT_MESSAGE" value="Зафиксирована политика работы c readTimeout. Метод execFile заменен методом exec без перегрузок." />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
