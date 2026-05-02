@@ -9,15 +9,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cd7d6f01-7d11-4fa7-8097-bb28cc6220d7" name="Changes" comment="Тест сборки.">
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/kazantsev/nsmp/basic_api_connector/exception/RequestProcessException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/kazantsev/nsmp/basic_api_connector/exception/ResponseReadException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/nsmp_basic_api_connector/ConnectorExecTests.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/resources/test/testScriptLong.groovy" afterDir="false" />
+    <list default="true" id="cd7d6f01-7d11-4fa7-8097-bb28cc6220d7" name="Changes" comment="Добавлены исключения обертки RequestProcessException и ResponseReadException для подавления и/или перехвата реальных исключений. Изменены сигнатуры execGet и execPost, теперь они принимают responseMapper что бы получить ответ и закрыть ответ. Пользователю сырой ответ более не передается.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ru/kazantsev/nsmp/basic_api_connector/Connector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/kazantsev/nsmp/basic_api_connector/Connector.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/nsmp_basic_api_connector/ConnectorMethodTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/nsmp_basic_api_connector/ConnectorMethodTests.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -434,15 +429,7 @@
       <workItem from="1776094291649" duration="12766000" />
       <workItem from="1776161558708" duration="611000" />
       <workItem from="1776235895981" duration="3264000" />
-      <workItem from="1777711443898" duration="26573000" />
-    </task>
-    <task id="LOCAL-00022" summary="зафиксирован чарсет">
-      <option name="closed" value="true" />
-      <created>1705334577686</created>
-      <option name="number" value="00022" />
-      <option name="presentableId" value="LOCAL-00022" />
-      <option name="project" value="LOCAL" />
-      <updated>1705334577686</updated>
+      <workItem from="1777711443898" duration="27196000" />
     </task>
     <task id="LOCAL-00023" summary="зафиксирован чарсет">
       <option name="closed" value="true" />
@@ -828,7 +815,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777729872008</updated>
     </task>
-    <option name="localTasksCounter" value="71" />
+    <task id="LOCAL-00071" summary="Добавлены исключения обертки RequestProcessException и ResponseReadException для подавления и/или перехвата реальных исключений. Изменены сигнатуры execGet и execPost, теперь они принимают responseMapper что бы получить ответ и закрыть ответ. Пользователю сырой ответ более не передается.">
+      <option name="closed" value="true" />
+      <created>1777742188475</created>
+      <option name="number" value="00071" />
+      <option name="presentableId" value="LOCAL-00071" />
+      <option name="project" value="LOCAL" />
+      <updated>1777742188475</updated>
+    </task>
+    <option name="localTasksCounter" value="72" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -846,7 +841,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="тесты" />
     <MESSAGE value="правка багов" />
     <MESSAGE value="упростил и сократил код&#10;добавил метод получения ключа по логину и паролю" />
     <MESSAGE value="упростил и сократил код&#10;добавил метод получения ключа по логину и паролю&#10;кажись работает, но это не точно" />
@@ -871,7 +865,8 @@
     <MESSAGE value="Зафиксирована политика работы c readTimeout. Метод execFile заменен методом exec без перегрузок." />
     <MESSAGE value="Зафиксирована политика работы c readTimeout. Метод execFile заменен методом exec без перегрузок.&#10;Улучшены тесты." />
     <MESSAGE value="Тест сборки." />
-    <option name="LAST_COMMIT_MESSAGE" value="Тест сборки." />
+    <MESSAGE value="Добавлены исключения обертки RequestProcessException и ResponseReadException для подавления и/или перехвата реальных исключений. Изменены сигнатуры execGet и execPost, теперь они принимают responseMapper что бы получить ответ и закрыть ответ. Пользователю сырой ответ более не передается." />
+    <option name="LAST_COMMIT_MESSAGE" value="Добавлены исключения обертки RequestProcessException и ResponseReadException для подавления и/или перехвата реальных исключений. Изменены сигнатуры execGet и execPost, теперь они принимают responseMapper что бы получить ответ и закрыть ответ. Пользователю сырой ответ более не передается." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

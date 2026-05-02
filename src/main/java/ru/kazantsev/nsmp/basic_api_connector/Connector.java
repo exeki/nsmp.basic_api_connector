@@ -778,13 +778,32 @@ public class Connector {
     /**
      * Выполнение функции модуля через POST запрос
      *
+     * @param httpEntity     http сущность, содержащая body запроса
+     * @param methodName     название модуля и функции, вызываемой из модуля (func=modules.moduleCode.methodName)
+     * @param params         параметры функции, указанной в параметре func.
+     * @param responseMapper маппер, который должен преобразовать ответ в требуемые данные
+     * @return результат обработки responseMapper
+     */
+    @SuppressWarnings("unused")
+    public <T> T execPost(
+            HttpEntity httpEntity,
+            String methodName,
+            String params,
+            Function<ClassicHttpResponse, T> responseMapper
+    ) {
+        return execPost(httpEntity, methodName, params, responseMapper, null);
+    }
+
+    /**
+     * Выполнение функции модуля через POST запрос
+     *
      * @param httpEntity          http сущность, содержащая body запроса
      * @param methodName          название модуля и функции, вызываемой из модуля (func=modules.moduleCode.methodName)
      * @param params              параметры функции, указанной в параметре func.
+     * @param responseMapper      маппер, который должен преобразовать ответ в требуемые данные
      * @param additionalUrlParams дополнительные параметры url
-     * @return возвращает весь ответ сервера, его обработка остается на усмотрение пользователя
+     * @return результат обработки responseMapper
      */
-    @SuppressWarnings("unused")
     public <T> T execPost(
             HttpEntity httpEntity,
             String methodName,
@@ -807,10 +826,28 @@ public class Connector {
     /**
      * Выполнение функции модуля через GET запрос
      *
+     * @param methodName     название модуля и функции, вызываемой из модуля (func=modules.moduleCode.methodName)
+     * @param params         параметры функции, указанной в параметре func
+     * @param responseMapper маппер, который должен преобразовать ответ в требуемые данные
+     * @return результат обработки responseMapper
+     */
+    @SuppressWarnings("unused")
+    public <T> T execGet(
+            String methodName,
+            String params,
+            Function<ClassicHttpResponse, T> responseMapper
+    ) {
+        return execGet(methodName, params, responseMapper, null);
+    }
+
+    /**
+     * Выполнение функции модуля через GET запрос
+     *
      * @param methodName          название модуля и функции, вызываемой из модуля (func=modules.moduleCode.methodName)
      * @param params              параметры функции, указанной в параметре func
+     * @param responseMapper      маппер, который должен преобразовать ответ в требуемые данные
      * @param additionalUrlParams дополнительные параметры url
-     * @return возвращает весь ответ сервера, его обработка остается на усмотрение пользователя
+     * @return результат обработки responseMapper
      */
     @SuppressWarnings("unused")
     public <T> T execGet(
