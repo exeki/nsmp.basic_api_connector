@@ -67,5 +67,6 @@ tasks.javadoc {
 }
 
 tasks.test {
+
     useJUnitPlatform()
 }
