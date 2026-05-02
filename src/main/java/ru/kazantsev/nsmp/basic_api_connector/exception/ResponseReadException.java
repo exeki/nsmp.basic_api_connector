@@ -1,0 +1,15 @@
+package ru.kazantsev.nsmp.basic_api_connector.exception;
+
+/**
+ * Обертка над реальным исключением
+ */
+public class ResponseReadException extends RuntimeException {
+
+    private static String getMessage(Throwable cause) {
+        return "Something went wrong while reading response. The actual exception is in the cause of this exception: " + cause.getClass().getName();
+    }
+
+    public ResponseReadException(Throwable cause) {
+        super(getMessage(cause), cause);
+    }
+}

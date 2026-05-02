@@ -55,7 +55,7 @@ class ConnectorMethodTests {
         payload.put("title", title);
         HashMap<String, Object> result = api.createM2M(SERVICE_CALL_METACLASS, payload);
         testServiceCallUuid = result.get("UUID").toString();
-        logger.info("Создан тестовый serviceCall, title: " + title + ", uuid: " + testServiceCallUuid);
+        logger.info("Создан тестовый serviceCall, title: {}, uuid: {}", title, testServiceCallUuid);
 
     }
 
@@ -68,7 +68,7 @@ class ConnectorMethodTests {
         Map<String, Object> payload = Map.of("title", code, "code", code, "status", "active");
         HashMap<String, Object> result = api.createM2M(SERVICE_TIME_METACLASS, payload);
         testServiceTimeUuid = result.get("UUID").toString();
-        logger.info("Создан тестовый serviceTime, code: " + code + ", uuid: " + testServiceTimeUuid);
+        logger.info("Создан тестовый serviceTime, code: {}, uuid: {}", code, testServiceTimeUuid);
     }
 
     @AfterAll
@@ -187,10 +187,6 @@ class ConnectorMethodTests {
         api.delete(uuid);
     }
 
-    @Test
-    void execFromString() {
-        assertDoesNotThrow(() -> api().exec(resourceText("test/testScript.groovy")));
-    }
 
     @Test
     void find() {

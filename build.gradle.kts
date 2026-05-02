@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "ru.kazantsev.nsmp"
-version = "1.9.1"
+version = "1.9.2"
 
 java {
     //withJavadocJar()
@@ -67,6 +67,7 @@ tasks.javadoc {
 }
 
 tasks.test {
-
-    useJUnitPlatform()
+    useJUnitPlatform {
+        excludeTags("manual")
+    }
 }

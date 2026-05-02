@@ -35,6 +35,8 @@ import ru.kazantsev.nsmp.basic_api_connector.dto.nsmp.FileDto;
 import ru.kazantsev.nsmp.basic_api_connector.dto.nsmp.ScriptChecksums;
 import ru.kazantsev.nsmp.basic_api_connector.dto.nsmp.ServiceTimeExclusionDto;
 import ru.kazantsev.nsmp.basic_api_connector.exception.BadResponseException;
+import ru.kazantsev.nsmp.basic_api_connector.exception.RequestProcessException;
+import ru.kazantsev.nsmp.basic_api_connector.exception.ResponseReadException;
 
 import javax.net.ssl.SSLContext;
 import java.io.File;
@@ -42,8 +44,12 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * Коннектор, имплементирующий методы базового API NSMP
@@ -62,21 +68,7 @@ public class Connector {
     protected String accessKey;
     protected boolean ignoringSSL;
 
-    public String getHost() {
-        return host;
-    }
-
-    /**
-     * Клиент
-     */
-    protected final CloseableHttpClient client;
-
-    /**
-     * Используемый при общении маппер
-     */
-    protected ObjectMapper objectMapper;
-
-    public Connector(ConnectorParams params) {
+    public Connector(ConnectorParams params) throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
         this.host = params.getHost();
         this.accessKey = params.getAccessKey();
         this.scheme = params.getScheme();
@@ -90,23 +82,52 @@ public class Connector {
     }
 
     /**
+     * Клиент
+     */
+    protected final CloseableHttpClient client;
+
+    /**
+     * Используемый при общении маппер
+     */
+    protected ObjectMapper objectMapper;
+
+    /**
      * Возвращает connection manager с отключенной проверкой сертификата и hostname verification
      *
      * @return connection manager
      */
-    protected PoolingHttpClientConnectionManager getNoSslConnectionManager() {
+    protected PoolingHttpClientConnectionManager getNoSslConnectionManager() throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
+        SSLContext sslContext = SSLContexts.custom()
+                .loadTrustMaterial(null, TrustAllStrategy.INSTANCE)
+                .build();
+        return PoolingHttpClientConnectionManagerBuilder.create()
+                .setTlsSocketStrategy(ClientTlsStrategyBuilder.create()
+                        .setSslContext(sslContext)
+                        .setHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                        .buildClassic())
+                .build();
+    }
+
+    /**
+     * Возвращает базовый конструктор URI
+     *
+     * @return базовый конструктор URI
+     */
+    protected URIBuilder getBasicUriBuilder() {
+        return new URIBuilder().setScheme(scheme).setHost(host).addParameter(ACCESS_KEY_PARAM_NAME, accessKey);
+    }
+
+    protected URI getUri(String path) {
+        return getUri(path, null);
+    }
+
+    protected URI getUri(String path, Map<String, String> params) {
         try {
-            SSLContext sslContext = SSLContexts.custom()
-                    .loadTrustMaterial(null, TrustAllStrategy.INSTANCE)
-                    .build();
-            return PoolingHttpClientConnectionManagerBuilder.create()
-                    .setTlsSocketStrategy(ClientTlsStrategyBuilder.create()
-                            .setSslContext(sslContext)
-                            .setHostnameVerifier(NoopHostnameVerifier.INSTANCE)
-                            .buildClassic())
-                    .build();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            var builder = getBasicUriBuilder().setPath(path);
+            if (params != null) params.forEach(builder::setParameter);
+            return builder.build();
+        } catch (URISyntaxException e) {
+            throw new RequestProcessException(e);
         }
     }
 
@@ -121,26 +142,12 @@ public class Connector {
     }
 
     /**
-     * Собрать URI с подавлением потенциальных исключений
+     * Получить хост
      *
-     * @param builder билдер
-     * @return собранных URI
+     * @return хост
      */
-    protected URI buildUri(URIBuilder builder) {
-        try {
-            return builder.build();
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Возвращает базовый конструктор URI
-     *
-     * @return базовый конструктор URI
-     */
-    protected URIBuilder getBasicUriBuilder() {
-        return new URIBuilder().setScheme(scheme).setHost(host).addParameter(ACCESS_KEY_PARAM_NAME, accessKey);
+    public String getHost() {
+        return host;
     }
 
     /**
@@ -153,7 +160,7 @@ public class Connector {
         try {
             return new StringEntity(objectMapper.writeValueAsString(value), ContentType.APPLICATION_JSON);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new RequestProcessException(e);
         }
     }
 
@@ -169,7 +176,7 @@ public class Connector {
     protected <T> T executePost(
             HttpPost request,
             String method,
-            java.util.function.Function<ClassicHttpResponse, T> responseMapper
+            Function<ClassicHttpResponse, T> responseMapper
     ) {
         return executePost(request, method, responseMapper, null);
     }
@@ -187,22 +194,23 @@ public class Connector {
     protected <T> T executePost(
             HttpPost request,
             String method,
-            java.util.function.Function<ClassicHttpResponse, T> responseMapper,
+            Function<ClassicHttpResponse, T> responseMapper,
             Long readTimeout
     ) {
-        if (readTimeout != null) {
-            RequestConfig requestConfig = RequestConfig.custom()
-                    .setResponseTimeout(Timeout.ofMilliseconds(readTimeout))
-                    .build();
-            request.setConfig(requestConfig);
-        }
         try {
+            if (readTimeout != null) {
+                RequestConfig requestConfig = RequestConfig.custom()
+                        .setResponseTimeout(Timeout.ofMilliseconds(readTimeout))
+                        .build();
+                request.setConfig(requestConfig);
+            }
             logger.debug("POST request \"{}\" uri: \"{}\"", method, request);
             HttpClientResponseHandler<T> handler = response -> handleResponse(method, response, responseMapper);
             return client.execute(request, handler);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
     }
 
     /**
@@ -214,10 +222,10 @@ public class Connector {
      * @param <T>            тип возвращаемых данных
      * @return ответ, преобразованных responseMapper
      */
-    public <T> T executeGet(
+    protected <T> T executeGet(
             HttpGet request,
             String method,
-            java.util.function.Function<ClassicHttpResponse, T> responseMapper
+            Function<ClassicHttpResponse, T> responseMapper
     ) {
         return executeGet(request, method, responseMapper, null);
     }
@@ -232,24 +240,24 @@ public class Connector {
      * @param <T>            тип возвращаемых данных
      * @return ответ, преобразованных responseMapper
      */
-    public <T> T executeGet(
+    protected <T> T executeGet(
             HttpGet request,
             String method,
-            java.util.function.Function<ClassicHttpResponse, T> responseMapper,
+            Function<ClassicHttpResponse, T> responseMapper,
             Long readTimeout
     ) {
-        if (readTimeout != null) {
-            RequestConfig requestConfig = RequestConfig.custom()
-                    .setResponseTimeout(Timeout.ofMilliseconds(readTimeout))
-                    .build();
-            request.setConfig(requestConfig);
-        }
         try {
+            if (readTimeout != null) {
+                RequestConfig requestConfig = RequestConfig.custom()
+                        .setResponseTimeout(Timeout.ofMilliseconds(readTimeout))
+                        .build();
+                request.setConfig(requestConfig);
+            }
             logger.debug("GET request \"{}\" uri: \"{}\"", method, request);
             HttpClientResponseHandler<T> handler = response -> handleResponse(method, response, responseMapper);
             return client.execute(request, handler);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RequestProcessException(e);
         }
     }
 
@@ -265,11 +273,11 @@ public class Connector {
     protected <T> T handleResponse(
             String method,
             ClassicHttpResponse response,
-            java.util.function.Function<ClassicHttpResponse, T> responseMapper
+            Function<ClassicHttpResponse, T> responseMapper
     ) {
         var status = response.getCode();
-        BadResponseException.throwIfNotOk(this, response);
         logger.debug("{} response status: {}", method, status);
+        BadResponseException.throwIfNotOk(this, response);
         return responseMapper.apply(response);
     }
 
@@ -283,7 +291,7 @@ public class Connector {
         try {
             return EntityUtils.toString(response.getEntity());
         } catch (IOException | ParseException e) {
-            throw new RuntimeException(e);
+            throw new ResponseReadException(e);
         }
     }
 
@@ -297,7 +305,7 @@ public class Connector {
         try {
             return EntityUtils.toByteArray(response.getEntity());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ResponseReadException(e);
         }
     }
 
@@ -312,8 +320,8 @@ public class Connector {
         try {
             return objectMapper.readValue(readBodyAsString(response), new TypeReference<>() {
             });
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (JsonProcessingException e) {
+            throw new ResponseReadException(e);
         }
     }
 
@@ -328,8 +336,8 @@ public class Connector {
     protected <T> T readBodyAsJson(ClassicHttpResponse response, Class<T> clazz) {
         try {
             return objectMapper.readValue(readBodyAsString(response), clazz);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (JsonProcessingException e) {
+            throw new ResponseReadException(e);
         }
     }
 
@@ -341,11 +349,12 @@ public class Connector {
      * @param <T>           требуемый тип
      * @return ответ, десерилизованный в требуемый тип
      */
+    @SuppressWarnings("unused")
     protected <T> T readBodyAsJson(ClassicHttpResponse response, TypeReference<T> typeReference) {
         try {
             return objectMapper.readValue(readBodyAsString(response), typeReference);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (JsonProcessingException e) {
+            throw new ResponseReadException(e);
         }
     }
 
@@ -355,7 +364,7 @@ public class Connector {
      * @param map из этого будет создан JSON
      * @return JSON
      */
-    protected static String createJsonForUrl(HashMap<String, String> map) {
+    protected String createJsonForUrl(HashMap<String, String> map) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("{");
         Set<Map.Entry<String, String>> entrySet = map.entrySet();
@@ -379,7 +388,7 @@ public class Connector {
     public void create(String metaClassCode, Map<String, Object> attributes) {
         String PATH_SEGMENT = "create";
         String path = BASE_REST_PATH + "/" + PATH_SEGMENT + "/" + metaClassCode;
-        HttpPost httpPost = new HttpPost(buildUri(getBasicUriBuilder().setPath(path)));
+        HttpPost httpPost = new HttpPost(getUri(path));
         httpPost.setEntity(newStringEntity(attributes));
         executePost(httpPost, PATH_SEGMENT, response -> null);
     }
@@ -401,6 +410,7 @@ public class Connector {
      * @param file             отправляемый файл
      * @param attrCode         код атрибута типа "Файл". Если параметр указан, то файл добавляется в указанный атрибут, иначе файл добавляется к объекту.
      */
+    @SuppressWarnings("unused")
     public void addFile(String targetObjectUuid, File file, String attrCode) {
         addFile(targetObjectUuid, Collections.singletonList(file), attrCode);
     }
@@ -425,15 +435,16 @@ public class Connector {
     public void addFile(String targetObjectUuid, List<File> files, String attrCode) {
         String PATH_SEGMENT = "add-file";
         String path = BASE_REST_PATH + "/" + PATH_SEGMENT + "/" + targetObjectUuid;
-        URIBuilder uriBuilder = getBasicUriBuilder().setPath(path);
-        if (attrCode != null) uriBuilder.addParameter("attrCode", attrCode);
-        HttpPost httpPost = new HttpPost(buildUri(uriBuilder));
+        URI uri;
+        if (attrCode == null) uri = getUri(path);
+        else uri = getUri(path, Map.of("attrsCode", attrCode));
+        HttpPost httpPost = new HttpPost(uri);
         MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
         for (int i = 0; i < files.size(); i++) {
             entityBuilder.addBinaryBody(String.valueOf(i), files.get(i));
         }
         httpPost.setEntity(entityBuilder.build());
-        executePost(httpPost, PATH_SEGMENT, response -> null);
+        executePost(httpPost, PATH_SEGMENT, (ClassicHttpResponse response) -> null);
     }
 
     /**
@@ -459,9 +470,10 @@ public class Connector {
     public void addFile(String targetObjectUuid, byte[] fileBytes, String fileName, String attrCode) {
         String PATH_SEGMENT = "add-file";
         String path = BASE_REST_PATH + "/" + PATH_SEGMENT + "/" + targetObjectUuid;
-        URIBuilder uriBuilder = getBasicUriBuilder().setPath(path);
-        if (attrCode != null) uriBuilder.addParameter("attrCode", attrCode);
-        HttpPost httpPost = new HttpPost(buildUri(uriBuilder));
+        URI uri;
+        if (attrCode == null) uri = getUri(path);
+        else uri = getUri(path, Map.of("attrsCode", attrCode));
+        HttpPost httpPost = new HttpPost(uri);
         HttpEntity entity = MultipartEntityBuilder.create()
                 .addBinaryBody("file", fileBytes, ContentType.TEXT_PLAIN, fileName)
                 .build();
@@ -497,7 +509,7 @@ public class Connector {
         if (endTime != null) lastSegmentMap.put("endTime", endTime.toString());
         String lastSegmentString = createJsonForUrl(lastSegmentMap);
         String path = BASE_REST_PATH + "/" + PATH_SEGMENT + "/" + serviceTimeUuid + "/" + lastSegmentString;
-        var uri = buildUri(getBasicUriBuilder().setPath(path));
+        var uri = getUri(path);
         return executeGet(
                 new HttpGet(uri),
                 PATH_SEGMENT,
@@ -527,9 +539,9 @@ public class Connector {
     public HashMap<String, Object> createM2M(String metaClassCode, Map<String, Object> attributes, List<String> returnAttrs) {
         String PATH_SEGMENT = "create-m2m";
         String path = BASE_REST_PATH + "/" + PATH_SEGMENT + "/" + metaClassCode;
-        URIBuilder builder = getBasicUriBuilder().setPath(path);
-        if (returnAttrs != null) builder.setParameter("attrs", String.join(",", returnAttrs));
-        HttpPost httpPost = new HttpPost(buildUri(builder));
+        HashMap<String, String> params = new HashMap<>();
+        if (returnAttrs != null) params.put("attrs", String.join(",", returnAttrs));
+        HttpPost httpPost = new HttpPost(getUri(path, params));
         httpPost.setEntity(newStringEntity(attributes));
         return executePost(httpPost, PATH_SEGMENT, this::readBodyAsJson);
     }
@@ -542,8 +554,8 @@ public class Connector {
      */
     public List<HashMap<String, Object>> createM2MMultiple(List<Map<String, Object>> objects) {
         String PATH_SEGMENT = "create-m2m-multiple";
-        var builder = getBasicUriBuilder().setPath(BASE_REST_PATH + "/" + PATH_SEGMENT);
-        HttpPost httpPost = new HttpPost(buildUri(builder));
+        String path = BASE_REST_PATH + "/" + PATH_SEGMENT;
+        HttpPost httpPost = new HttpPost(getUri(path));
         httpPost.setEntity(newStringEntity(objects));
         return executePost(httpPost, PATH_SEGMENT, this::readBodyAsJson);
     }
@@ -555,8 +567,8 @@ public class Connector {
      */
     public void delete(String objectUuid) {
         String PATH_SEGMENT = "delete";
-        var builder = getBasicUriBuilder().setPath(BASE_REST_PATH + "/" + PATH_SEGMENT + "/" + objectUuid);
-        executeGet(new HttpGet(buildUri(builder)), PATH_SEGMENT, response -> null);
+        String path = BASE_REST_PATH + "/" + PATH_SEGMENT + "/" + objectUuid;
+        executeGet(new HttpGet(getUri(path)), PATH_SEGMENT, response -> null);
     }
 
     /**
@@ -567,8 +579,8 @@ public class Connector {
      */
     public void edit(String objectUuid, Map<String, Object> attributes) {
         String PATH_SEGMENT = "edit";
-        var builder = getBasicUriBuilder().setPath(BASE_REST_PATH + "/" + PATH_SEGMENT + "/" + objectUuid);
-        HttpPost httpPost = new HttpPost(buildUri(builder));
+        String path = BASE_REST_PATH + "/" + PATH_SEGMENT + "/" + objectUuid;
+        HttpPost httpPost = new HttpPost(getUri(path));
         httpPost.setEntity(newStringEntity(attributes));
         executePost(httpPost, PATH_SEGMENT, response -> null);
     }
@@ -588,9 +600,9 @@ public class Connector {
         if (startTime != null) lastSegmentMap.put("startTime", startTime.toString());
         if (endTime != null) lastSegmentMap.put("endTime", endTime.toString());
         String lastSegmentString = createJsonForUrl(lastSegmentMap);
-        var builder = getBasicUriBuilder().setPath(BASE_REST_PATH + "/" + PATH_SEGMENT + "/" + serviceTimeExclusion + "/" + lastSegmentString);
+        String path = BASE_REST_PATH + "/" + PATH_SEGMENT + "/" + serviceTimeExclusion + "/" + lastSegmentString;
         return executeGet(
-                new HttpGet(buildUri(builder)),
+                new HttpGet(getUri(path)),
                 PATH_SEGMENT,
                 (ClassicHttpResponse response) -> readBodyAsJson(response, ServiceTimeExclusionDto.class)
         );
@@ -603,6 +615,7 @@ public class Connector {
      * @param attributes изменяемые атрибуты
      * @return измененный объект или только указанные атрибуты, если установлен returnAttrs.
      */
+    @SuppressWarnings("unused")
     public HashMap<String, Object> editM2M(String objectUuid, Map<String, Object> attributes) {
         return editM2M(objectUuid, attributes, null);
     }
@@ -617,9 +630,10 @@ public class Connector {
      */
     public HashMap<String, Object> editM2M(String objectUuid, Map<String, Object> attributes, List<String> returnAttrs) {
         String PATH_SEGMENT = "edit-m2m";
-        URIBuilder builder = getBasicUriBuilder().setPath(BASE_REST_PATH + "/" + PATH_SEGMENT + "/" + objectUuid);
-        if (returnAttrs != null) builder.addParameter("attrs", String.join(",", returnAttrs));
-        HttpPost httpPost = new HttpPost(buildUri(builder));
+        String path = BASE_REST_PATH + "/" + PATH_SEGMENT + "/" + objectUuid;
+        Map<String, String> params = new HashMap<>();
+        if (returnAttrs != null) params.put("attrs", String.join(",", returnAttrs));
+        HttpPost httpPost = new HttpPost(getUri(path, params));
         httpPost.setEntity(newStringEntity(attributes));
         return executePost(httpPost, PATH_SEGMENT, this::readBodyAsJson);
     }
@@ -634,8 +648,8 @@ public class Connector {
     public String exec(String scriptText, Long readTimeout) {
         byte[] byteArray = scriptText.getBytes(StandardCharsets.UTF_8);
         String PATH_SEGMENT = "exec";
-        var builder = getBasicUriBuilder().setPath(BASE_REST_PATH + "/" + PATH_SEGMENT);
-        HttpPost httpPost = new HttpPost(buildUri(builder));
+        String path = BASE_REST_PATH + "/" + PATH_SEGMENT;
+        HttpPost httpPost = new HttpPost(getUri(path));
         HttpEntity entity = MultipartEntityBuilder.create()
                 .addBinaryBody("script", byteArray, ContentType.TEXT_PLAIN, "script.groovy")
                 .build();
@@ -672,10 +686,11 @@ public class Connector {
      */
     public HashMap<String, Object> get(String objectUuid, List<String> returnAttrs) {
         String PATH_SEGMENT = "get";
-        URIBuilder builder = getBasicUriBuilder().setPath(BASE_REST_PATH + "/" + PATH_SEGMENT + "/" + objectUuid);
-        if (returnAttrs != null) builder.setParameter("attrs", String.join(",", returnAttrs));
+        String path = BASE_REST_PATH + "/" + PATH_SEGMENT + "/" + objectUuid;
+        HashMap<String, String> params = new HashMap<>();
+        if (returnAttrs != null) params.put("attrs", String.join(",", returnAttrs));
         return executeGet(
-                new HttpGet(buildUri(builder)),
+                new HttpGet(getUri(path, params)),
                 PATH_SEGMENT,
                 this::readBodyAsJson
         );
@@ -689,8 +704,8 @@ public class Connector {
      */
     public FileDto getFile(String fileUuid) {
         String PATH_SEGMENT = "get-file";
-        var builder = getBasicUriBuilder().setPath(BASE_REST_PATH + "/" + PATH_SEGMENT + "/" + fileUuid);
-        return executeGet(new HttpGet(buildUri(builder)), PATH_SEGMENT, (ClassicHttpResponse response) ->
+        String path = BASE_REST_PATH + "/" + PATH_SEGMENT + "/" + fileUuid;
+        return executeGet(new HttpGet(getUri(path)), PATH_SEGMENT, (ClassicHttpResponse response) ->
                 new FileDto(
                         readBodyAsBytes(response),
                         Optional.ofNullable(response.getFirstHeader("Content-Disposition"))
@@ -750,11 +765,12 @@ public class Connector {
             Long limit
     ) {
         String PATH_SEGMENT = "find";
-        URIBuilder uriBuilder = getBasicUriBuilder().setPath(BASE_REST_PATH + "/" + PATH_SEGMENT + "/" + metaClassCode);
-        if (returnAttrs != null) uriBuilder.setParameter("attrs", String.join(",", returnAttrs));
-        if (offset != null) uriBuilder.setParameter("offset", offset.toString());
-        if (limit != null) uriBuilder.setParameter("limit", limit.toString());
-        HttpPost httpPost = new HttpPost(buildUri(uriBuilder));
+        String path = BASE_REST_PATH + "/" + PATH_SEGMENT + "/" + metaClassCode;
+        HashMap<String, String> params = new HashMap<>();
+        if (returnAttrs != null) params.put("attrs", String.join(",", returnAttrs));
+        if (offset != null) params.put("offset", offset.toString());
+        if (limit != null) params.put("limit", limit.toString());
+        HttpPost httpPost = new HttpPost(getUri(path, params));
         httpPost.setEntity(newStringEntity(searchAttrs));
         return executePost(httpPost, PATH_SEGMENT, this::readBodyAsJson);
     }
@@ -768,29 +784,24 @@ public class Connector {
      * @param additionalUrlParams дополнительные параметры url
      * @return возвращает весь ответ сервера, его обработка остается на усмотрение пользователя
      */
-    public ClassicHttpResponse execPost(
+    @SuppressWarnings("unused")
+    public <T> T execPost(
             HttpEntity httpEntity,
             String methodName,
             String params,
+            Function<ClassicHttpResponse, T> responseMapper,
             Map<String, String> additionalUrlParams
     ) {
         String PATH_SEGMENT = "exec-post";
-        URIBuilder uriBuilder = getBasicUriBuilder().setPath(BASE_REST_PATH + "/" + PATH_SEGMENT);
-        if (additionalUrlParams != null) {
-            for (Map.Entry<String, String> entry : additionalUrlParams.entrySet()) {
-                uriBuilder.setParameter(entry.getKey(), entry.getValue());
-            }
-        }
-        uriBuilder.setParameter("func", methodName);
-        uriBuilder.setParameter("params", params);
-        uriBuilder.setParameter("raw", "true");
-        HttpPost httpPost = new HttpPost(buildUri(uriBuilder));
+        String path = BASE_REST_PATH + "/" + PATH_SEGMENT;
+        HashMap<String, String> urlParams = new HashMap<>();
+        if (additionalUrlParams != null) urlParams.putAll(additionalUrlParams);
+        urlParams.put("func", methodName);
+        urlParams.put("params", params);
+        urlParams.put("raw", "true");
+        HttpPost httpPost = new HttpPost(getUri(path, urlParams));
         httpPost.setEntity(httpEntity);
-        try {
-            return client.executeOpen(null, httpPost, null);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return executePost(httpPost, PATH_SEGMENT, responseMapper);
     }
 
     /**
@@ -801,26 +812,22 @@ public class Connector {
      * @param additionalUrlParams дополнительные параметры url
      * @return возвращает весь ответ сервера, его обработка остается на усмотрение пользователя
      */
-    public ClassicHttpResponse execGet(
+    @SuppressWarnings("unused")
+    public <T> T execGet(
             String methodName,
             String params,
+            Function<ClassicHttpResponse, T> responseMapper,
             Map<String, String> additionalUrlParams
     ) {
         String PATH_SEGMENT = "exec";
-        URIBuilder uriBuilder = getBasicUriBuilder().setPath(BASE_REST_PATH + "/" + PATH_SEGMENT);
-        if (additionalUrlParams != null) {
-            for (Map.Entry<String, String> entry : additionalUrlParams.entrySet()) {
-                uriBuilder.setParameter(entry.getKey(), entry.getValue());
-            }
-        }
-        uriBuilder.setParameter("func", methodName);
-        uriBuilder.setParameter("params", params);
-        HttpGet httpGet = new HttpGet(buildUri(uriBuilder));
-        try {
-            return client.executeOpen(null, httpGet, null);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        String path = BASE_REST_PATH + "/" + PATH_SEGMENT;
+        HashMap<String, String> urlParams = new HashMap<>();
+        if (additionalUrlParams != null) urlParams.putAll(additionalUrlParams);
+        urlParams.put("func", methodName);
+        urlParams.put("params", params);
+        urlParams.put("raw", "true");
+        HttpGet httpGet = new HttpGet(getUri(path, urlParams));
+        return executeGet(httpGet, PATH_SEGMENT, responseMapper);
     }
 
     /**
@@ -831,7 +838,7 @@ public class Connector {
     public String version() {
         String PATH_SEGMENT = "version";
         String path = BASE_SMPSYNC_PATH + "/" + PATH_SEGMENT;
-        return executeGet(new HttpGet(buildUri(getBasicUriBuilder().setPath(path))), PATH_SEGMENT, this::readBodyAsString);
+        return executeGet(new HttpGet(getUri(path)), PATH_SEGMENT, this::readBodyAsString);
     }
 
     /**
@@ -842,7 +849,7 @@ public class Connector {
     public String groovyVersion() {
         String PATH_SEGMENT = "groovy_version";
         String path = BASE_SMPSYNC_PATH + "/" + PATH_SEGMENT;
-        return executeGet(new HttpGet(buildUri(getBasicUriBuilder().setPath(path))), PATH_SEGMENT, this::readBodyAsString);
+        return executeGet(new HttpGet(getUri(path)), PATH_SEGMENT, this::readBodyAsString);
     }
 
     /**
@@ -853,7 +860,7 @@ public class Connector {
     public String jpdaInfo() {
         String PATH_SEGMENT = "jpda_info";
         String path = BASE_SMPSYNC_PATH + "/" + PATH_SEGMENT;
-        return executeGet(new HttpGet(buildUri(getBasicUriBuilder().setPath(path))), PATH_SEGMENT, this::readBodyAsString);
+        return executeGet(new HttpGet(getUri(path)), PATH_SEGMENT, this::readBodyAsString);
     }
 
     /**
@@ -865,8 +872,7 @@ public class Connector {
     public String metainfo(Long readTimeout) {
         String PATH_SEGMENT = "metainfo";
         String path = BASE_SMPSYNC_PATH + "/" + PATH_SEGMENT;
-        var builder = getBasicUriBuilder().setPath(path);
-        HttpGet httpGet = new HttpGet(buildUri(builder));
+        HttpGet httpGet = new HttpGet(getUri(path));
         return executeGet(httpGet, PATH_SEGMENT, this::readBodyAsString, readTimeout);
     }
 
@@ -885,10 +891,11 @@ public class Connector {
      * @param xmlFileContent строка xml файла конфигурации
      * @param readTimeout    read timeout
      */
+    @SuppressWarnings("unused")
     public void uploadMetainfo(String xmlFileContent, Long readTimeout) {
         String PATH_SEGMENT = "upload-metainfo";
         String path = BASE_SMPSYNC_PATH + "/" + PATH_SEGMENT;
-        HttpPost httpPost = new HttpPost(buildUri(getBasicUriBuilder().setPath(path)));
+        HttpPost httpPost = new HttpPost(getUri(path));
         HttpEntity entity = MultipartEntityBuilder.create()
                 .addBinaryBody("metainfo", xmlFileContent.getBytes(), ContentType.APPLICATION_XML, "metainfo.xml")
                 .build();
@@ -909,10 +916,7 @@ public class Connector {
     public String getAccessKey(String login, String password, Integer livetime) {
         String PATH_SEGMENT = "get-access-key";
         String path = BASE_REST_PATH + "/" + PATH_SEGMENT;
-        var builder = getBasicUriBuilder().setPath(path);
-        builder.clearParameters();
-        builder.addParameter("livetime", livetime.toString());
-        var httpGet = new HttpGet(buildUri(builder));
+        var httpGet = new HttpGet(getUri(path, Map.of("livetime", livetime.toString())));
         httpGet.setHeader("HTTP_AUTH_LOGIN", login);
         httpGet.setHeader("HTTP_AUTH_PASSWD", password);
         var key = executeGet(httpGet, PATH_SEGMENT, this::readBodyAsString);
@@ -929,8 +933,7 @@ public class Connector {
     public String getScripts(Long readTimeout) {
         String PATH_SEGMENT = "scripts";
         String path = BASE_SMPSYNC_PATH + "/" + PATH_SEGMENT;
-        var builder = getBasicUriBuilder().setPath(path);
-        var httpGet = new HttpGet(buildUri(builder));
+        var httpGet = new HttpGet(getUri(path));
         return executeGet(httpGet, PATH_SEGMENT, this::readBodyAsString, readTimeout);
     }
 
@@ -963,8 +966,7 @@ public class Connector {
     public ScriptChecksums pushScripts(byte[] archive, Long readTimeout) {
         String PATH_SEGMENT = "scripts";
         String path = BASE_SMPSYNC_PATH + "/" + PATH_SEGMENT;
-        var builder = getBasicUriBuilder().setPath(path);
-        HttpPost httpPost = new HttpPost(buildUri(builder));
+        HttpPost httpPost = new HttpPost(getUri(path));
         HttpEntity entity = MultipartEntityBuilder.create()
                 .addBinaryBody("file", archive, ContentType.create("application/zip"), "archive.zip")
                 .build();
@@ -986,8 +988,7 @@ public class Connector {
     public ScriptChecksums getScriptsStatus(Long readTimeout) {
         String PATH_SEGMENT = "scripts/status";
         String path = BASE_SMPSYNC_PATH + "/" + PATH_SEGMENT;
-        var builder = getBasicUriBuilder().setPath(path);
-        var httpGet = new HttpGet(buildUri(builder));
+        var httpGet = new HttpGet(getUri(path));
         return executeGet(
                 httpGet,
                 PATH_SEGMENT,

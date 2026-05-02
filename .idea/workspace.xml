@@ -10,8 +10,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cd7d6f01-7d11-4fa7-8097-bb28cc6220d7" name="Changes" comment="Тест сборки.">
-      <change beforePath="$PROJECT_DIR$/.github/workflows/gradle.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/gradle.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ru/kazantsev/nsmp/basic_api_connector/exception/RequestProcessException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ru/kazantsev/nsmp/basic_api_connector/exception/ResponseReadException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/nsmp_basic_api_connector/ConnectorExecTests.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/resources/test/testScriptLong.groovy" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ru/kazantsev/nsmp/basic_api_connector/Connector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/kazantsev/nsmp/basic_api_connector/Connector.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/nsmp_basic_api_connector/ConnectorMethodTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/nsmp_basic_api_connector/ConnectorMethodTests.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -130,6 +136,7 @@
   "keyToString": {
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "Gradle.Build nsd.basic_api_connector.executor": "Run",
+    "Gradle.ConnectorExecTests.execLong.executor": "Run",
     "Gradle.ConnectorMethodTests (1).executor": "Run",
     "Gradle.ConnectorMethodTests.addFileFromBytes.executor": "Run",
     "Gradle.ConnectorMethodTests.addFileFromFile.executor": "Run",
@@ -175,7 +182,7 @@
     "git-widget-placeholder": "master",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/projects/jvm/nsd/standalone/nsd.basic_api_connector/src/test/resources",
+    "last_opened_file_path": "C:/projects/jvm/nsd/standalone/nsd.basic_api_connector/src/test/resources/test",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -191,6 +198,7 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\projects\jvm\nsd\standalone\nsd.basic_api_connector\src\test\resources\test" />
       <recent name="C:\projects\jvm\nsd\standalone\nsd.basic_api_connector\src\test\resources" />
       <recent name="C:\ekazantsev\projects\nsd\backend\standalone\nsd.basic_api_connector\src\test\groovy\nsd_basic_api_connector\method_tests" />
       <recent name="C:\projects\nds\sdk\nsd_basic_api_connector\src\test\resources" />
@@ -203,11 +211,12 @@
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="ru.kazantsev.nsmp.basic_api_connector.exception" />
+      <recent name="nsmp_basic_api_connector" />
       <recent name="ru.ekazantsev.nsd_basic_api_connector" />
     </key>
   </component>
   <component name="RunManager" selected="Gradle.nsd.basic_api_connector [test]">
-    <configuration name="ConnectorMethodTests (1)" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="ConnectorExecTests.execLong" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -220,7 +229,7 @@
           <list>
             <option value=":test" />
             <option value="--tests" />
-            <option value="&quot;nsmp_basic_api_connector.ConnectorMethodTests&quot;" />
+            <option value="&quot;nsmp_basic_api_connector.ConnectorExecTests.execLong&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -341,10 +350,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Gradle.nsd.basic_api_connector [test]" />
+        <item itemvalue="Gradle.ConnectorExecTests.execLong" />
         <item itemvalue="Gradle.ConnectorMethodTests.editM2M" />
         <item itemvalue="Gradle.ConnectorMethodTests.edit" />
         <item itemvalue="Gradle.nsd.basic_api_connector [build]" />
-        <item itemvalue="Gradle.ConnectorMethodTests (1)" />
       </list>
     </recent_temporary>
   </component>
@@ -425,15 +434,7 @@
       <workItem from="1776094291649" duration="12766000" />
       <workItem from="1776161558708" duration="611000" />
       <workItem from="1776235895981" duration="3264000" />
-      <workItem from="1777711443898" duration="17915000" />
-    </task>
-    <task id="LOCAL-00021" summary="исправлен нулл пойнтер">
-      <option name="closed" value="true" />
-      <created>1704977622614</created>
-      <option name="number" value="00021" />
-      <option name="presentableId" value="LOCAL-00021" />
-      <option name="project" value="LOCAL" />
-      <updated>1704977622614</updated>
+      <workItem from="1777711443898" duration="26573000" />
     </task>
     <task id="LOCAL-00022" summary="зафиксирован чарсет">
       <option name="closed" value="true" />
@@ -819,7 +820,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777729774717</updated>
     </task>
-    <option name="localTasksCounter" value="70" />
+    <task id="LOCAL-00070" summary="Тест сборки.">
+      <option name="closed" value="true" />
+      <created>1777729872008</created>
+      <option name="number" value="00070" />
+      <option name="presentableId" value="LOCAL-00070" />
+      <option name="project" value="LOCAL" />
+      <updated>1777729872008</updated>
+    </task>
+    <option name="localTasksCounter" value="71" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -863,6 +872,16 @@
     <MESSAGE value="Зафиксирована политика работы c readTimeout. Метод execFile заменен методом exec без перегрузок.&#10;Улучшены тесты." />
     <MESSAGE value="Тест сборки." />
     <option name="LAST_COMMIT_MESSAGE" value="Тест сборки." />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="java.io.IOException" package="java.io" />
+          <option name="timeStamp" value="2" />
+        </breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
