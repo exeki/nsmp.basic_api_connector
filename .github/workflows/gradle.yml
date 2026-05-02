@@ -67,7 +67,7 @@ jobs:
             -u "$GITHUB_USERNAME:$GITHUB_TOKEN" \
             "$POM_URL")
 
-          if [ "$STATUS" = "200" ]; then
+          if [ "$STATUS" = "302" ]; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
             echo "Version already published: $POM_URL"
           elif [ "$STATUS" = "404" ]; then

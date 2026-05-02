@@ -9,9 +9,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cd7d6f01-7d11-4fa7-8097-bb28cc6220d7" name="Changes" comment="Зафиксирована политика работы c readTimeout. Метод execFile заменен методом exec без перегрузок.">
+    <list default="true" id="cd7d6f01-7d11-4fa7-8097-bb28cc6220d7" name="Changes" comment="Тест сборки.">
+      <change beforePath="$PROJECT_DIR$/.github/workflows/gradle.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/gradle.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/nsmp_basic_api_connector/ConnectorMethodTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/nsmp_basic_api_connector/ConnectorMethodTests.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -425,23 +425,7 @@
       <workItem from="1776094291649" duration="12766000" />
       <workItem from="1776161558708" duration="611000" />
       <workItem from="1776235895981" duration="3264000" />
-      <workItem from="1777711443898" duration="17556000" />
-    </task>
-    <task id="LOCAL-00019" summary="изменена сборка">
-      <option name="closed" value="true" />
-      <created>1699095160563</created>
-      <option name="number" value="00019" />
-      <option name="presentableId" value="LOCAL-00019" />
-      <option name="project" value="LOCAL" />
-      <updated>1699095160563</updated>
-    </task>
-    <task id="LOCAL-00020" summary="изменены зависимости">
-      <option name="closed" value="true" />
-      <created>1704883049939</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
-      <option name="project" value="LOCAL" />
-      <updated>1704883049939</updated>
+      <workItem from="1777711443898" duration="17915000" />
     </task>
     <task id="LOCAL-00021" summary="исправлен нулл пойнтер">
       <option name="closed" value="true" />
@@ -819,7 +803,23 @@
       <option name="project" value="LOCAL" />
       <updated>1777729415255</updated>
     </task>
-    <option name="localTasksCounter" value="68" />
+    <task id="LOCAL-00068" summary="Зафиксирована политика работы c readTimeout. Метод execFile заменен методом exec без перегрузок.&#10;Улучшены тесты.">
+      <option name="closed" value="true" />
+      <created>1777729626666</created>
+      <option name="number" value="00068" />
+      <option name="presentableId" value="LOCAL-00068" />
+      <option name="project" value="LOCAL" />
+      <updated>1777729626666</updated>
+    </task>
+    <task id="LOCAL-00069" summary="Тест сборки.">
+      <option name="closed" value="true" />
+      <created>1777729774717</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1777729774717</updated>
+    </task>
+    <option name="localTasksCounter" value="70" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -837,8 +837,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="удалена рантайм зависимость груви, оставлена только в тесте" />
-    <MESSAGE value="убран slf4j логгер из api" />
     <MESSAGE value="тесты" />
     <MESSAGE value="правка багов" />
     <MESSAGE value="упростил и сократил код&#10;добавил метод получения ключа по логину и паролю" />
@@ -862,7 +860,9 @@
     <MESSAGE value="расширен методы ConfigService" />
     <MESSAGE value="значительно видоизменен BadResponseException" />
     <MESSAGE value="Зафиксирована политика работы c readTimeout. Метод execFile заменен методом exec без перегрузок." />
-    <option name="LAST_COMMIT_MESSAGE" value="Зафиксирована политика работы c readTimeout. Метод execFile заменен методом exec без перегрузок." />
+    <MESSAGE value="Зафиксирована политика работы c readTimeout. Метод execFile заменен методом exec без перегрузок.&#10;Улучшены тесты." />
+    <MESSAGE value="Тест сборки." />
+    <option name="LAST_COMMIT_MESSAGE" value="Тест сборки." />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
