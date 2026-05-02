@@ -9,9 +9,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cd7d6f01-7d11-4fa7-8097-bb28cc6220d7" name="Changes" comment="Добавлены исключения обертки RequestProcessException и ResponseReadException для подавления и/или перехвата реальных исключений. Изменены сигнатуры execGet и execPost, теперь они принимают responseMapper что бы получить ответ и закрыть ответ. Пользователю сырой ответ более не передается.">
+    <list default="true" id="cd7d6f01-7d11-4fa7-8097-bb28cc6220d7" name="Changes" comment="Добавлены перегрузки для execPost и execGet">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ru/kazantsev/nsmp/basic_api_connector/Connector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/kazantsev/nsmp/basic_api_connector/Connector.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -429,15 +428,7 @@
       <workItem from="1776094291649" duration="12766000" />
       <workItem from="1776161558708" duration="611000" />
       <workItem from="1776235895981" duration="3264000" />
-      <workItem from="1777711443898" duration="27196000" />
-    </task>
-    <task id="LOCAL-00023" summary="зафиксирован чарсет">
-      <option name="closed" value="true" />
-      <created>1705336483476</created>
-      <option name="number" value="00023" />
-      <option name="presentableId" value="LOCAL-00023" />
-      <option name="project" value="LOCAL" />
-      <updated>1705336483476</updated>
+      <workItem from="1777711443898" duration="27970000" />
     </task>
     <task id="LOCAL-00024" summary="убран утилитарный класс">
       <option name="closed" value="true" />
@@ -823,7 +814,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777742188475</updated>
     </task>
-    <option name="localTasksCounter" value="72" />
+    <task id="LOCAL-00072" summary="Добавлены перегрузки для execPost и execGet">
+      <option name="closed" value="true" />
+      <created>1777742743441</created>
+      <option name="number" value="00072" />
+      <option name="presentableId" value="LOCAL-00072" />
+      <option name="project" value="LOCAL" />
+      <updated>1777742743441</updated>
+    </task>
+    <option name="localTasksCounter" value="73" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -841,7 +840,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="правка багов" />
     <MESSAGE value="упростил и сократил код&#10;добавил метод получения ключа по логину и паролю" />
     <MESSAGE value="упростил и сократил код&#10;добавил метод получения ключа по логину и паролю&#10;кажись работает, но это не точно" />
     <MESSAGE value="поправил доку" />
@@ -866,7 +864,8 @@
     <MESSAGE value="Зафиксирована политика работы c readTimeout. Метод execFile заменен методом exec без перегрузок.&#10;Улучшены тесты." />
     <MESSAGE value="Тест сборки." />
     <MESSAGE value="Добавлены исключения обертки RequestProcessException и ResponseReadException для подавления и/или перехвата реальных исключений. Изменены сигнатуры execGet и execPost, теперь они принимают responseMapper что бы получить ответ и закрыть ответ. Пользователю сырой ответ более не передается." />
-    <option name="LAST_COMMIT_MESSAGE" value="Добавлены исключения обертки RequestProcessException и ResponseReadException для подавления и/или перехвата реальных исключений. Изменены сигнатуры execGet и execPost, теперь они принимают responseMapper что бы получить ответ и закрыть ответ. Пользователю сырой ответ более не передается." />
+    <MESSAGE value="Добавлены перегрузки для execPost и execGet" />
+    <option name="LAST_COMMIT_MESSAGE" value="Добавлены перегрузки для execPost и execGet" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

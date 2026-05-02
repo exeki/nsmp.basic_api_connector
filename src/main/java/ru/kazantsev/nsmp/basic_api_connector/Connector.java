@@ -318,7 +318,8 @@ public class Connector {
      */
     protected <T> T readBodyAsJson(ClassicHttpResponse response) {
         try {
-            return objectMapper.readValue(readBodyAsString(response), new TypeReference<>() {
+            //noinspection Convert2Diamond
+            return objectMapper.readValue(readBodyAsString(response), new TypeReference<T>() {
             });
         } catch (JsonProcessingException e) {
             throw new ResponseReadException(e);
